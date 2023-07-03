@@ -5,31 +5,33 @@ const { Order } = require('../models/order');
 const { errorHandler } = require('../helpers/dbErrorHandler');
 require('dotenv').config();
 
-exports.orderById = (req, res, next, id) => {
-  Order.findById(id)
-    .populate('products.product', 'name price')
-    .exec((err, order) => {
-      if (err || !order) {
-        return res.status(400).json({
-          error: errorHandler(err),
-        });
-      }
-      req.order = order;
-      next();
-    });
-};
-
-exports.create = (req, res) => {
-  req.body.order.user = req.profile;
-  const order = new Order(req.body.order);
-  order.save((error, data) => {
-    if (error) {
+exports.orderById = async (req, res, next, id) => {
+  try {
+    const order = await Order.findById(id)
+      .populate('products.product', 'name price')
+      .exec();
+    if (!order) {
       return res.status(400).json({
-        error: errorHandler(error),
+        error: 'Order not found.',
       });
     }
+    req.order = order;
+    next();
+  } catch (err) {
+    res.status(400).json({ error: errorHandler(err) });
+  }
+};
+
+exports.create = async (req, res) => {
+  let order;
+  try {
+    req.body.order.user = req.profile;
+    order = new Order(req.body.order);
+    const data = await order.save();
     res.json(data);
-  });
+  } catch (err) {
+    res.status(400).json({ error: errorHandler(err) });
+  }
 
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -69,7 +71,7 @@ exports.create = (req, res) => {
     transporter.sendMail(mailOptionsBuyer, (error, info) => {
       if (error) {
         console.log(error);
-        throw new Error('Failed to send email.');
+        throw new Error('Failed to send email to buyer');
       } else {
         console.log(`Email sent: ${info.response}`);
       }
@@ -107,13 +109,19 @@ exports.create = (req, res) => {
     <h3>Login to your dashboard</a> to see the order in detail.</h3>`,
   };
 
-  transporter.sendMail(mailOptionsAdmin, (error, info) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log(`Email sent: ${info.response}`);
-    }
-  });
+  try {
+    transporter.sendMail(mailOptionsAdmin, (error, info) => {
+      if (error) {
+        console.log(error);
+        throw new Error('Failed to send email to admin.');
+      } else {
+        console.log(`Email sent: ${info.response}`);
+      }
+    });
+  } catch (error) {
+    // Handle the error here
+    console.log(error);
+  }
 };
 
 exports.listOrders = (req, res) => {
