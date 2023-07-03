@@ -12,7 +12,7 @@ const gateway = new braintree.BraintreeGateway({
 exports.generateToken = (req, res) => {
   gateway.clientToken.generate({}, (err, response) => {
     if (err) {
-      res.status(500)
+      res.status(500).json({ error: 'An error occurred while generating the client token.' })
         .send(err);
     } else {
       res.send(response);
