@@ -1,11 +1,13 @@
-const { Order, CartItem } = require("../models/order");
-const { errorHandler } = require("../helpers/dbErrorHandler");
-const nodemailer = require("nodemailer");
-require("dotenv").config();
+/* eslint-disable no-console */
+/* eslint-disable consistent-return */
+const nodemailer = require('nodemailer');
+const { Order } = require('../models/order');
+const { errorHandler } = require('../helpers/dbErrorHandler');
+require('dotenv').config();
 
 exports.orderById = (req, res, next, id) => {
   Order.findById(id)
-    .populate("products.product", "name price")
+    .populate('products.product', 'name price')
     .exec((err, order) => {
       if (err || !order) {
         return res.status(400).json({
@@ -30,7 +32,7 @@ exports.create = (req, res) => {
   });
 
   const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
+    host: 'smtp.gmail.com',
     port: 587,
     secure: false,
     requireTLS: true,
@@ -40,7 +42,7 @@ exports.create = (req, res) => {
     },
   });
 
-  let mailOptionsBuyer = {
+  const mailOptionsBuyer = {
     from: process.env.ADMIN_MAIL,
     to: order.user.email,
     subject: `Order no. ${order.transaction_id}`,
@@ -50,31 +52,35 @@ exports.create = (req, res) => {
     <h2>Product details:</h2>
             <hr />
             ${order.products
-              .map((p) => {
-                return `<div style="background-color:#c0edcc; width:33.33%">
+    .map((p) => `<div style="background-color:#c0edcc; width:33.33%">
                         <h3>Product Name: ${p.name}</h3>
                         <h3>Product Price: ${p.price}</h3>
                         <h3>Product Quantity: ${p.count}</h3>
                         <hr />
-                </div>`;
-              })
-              .join("--------------------")}
+                </div>`)
+    .join('--------------------')}
             <h2>Total order cost: ${order.amount}<h2>
             <h2>Total products: ${order.products.length}</h2>
             <br/>
             <h3>Thank your for shopping with Medshop.</h3>`,
   };
 
-  transporter.sendMail(mailOptionsBuyer, function (error, info) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("Email sent: " + info.response);
-    }
-  });
+  try {
+    transporter.sendMail(mailOptionsBuyer, (error, info) => {
+      if (error) {
+        console.log(error);
+        throw new Error('Failed to send email.');
+      } else {
+        console.log(`Email sent: ${info.response}`);
+      }
+    });
+  } catch (error) {
+    // Handle the error here
+    console.log(error);
+  }
 
-  let mailOptionsAdmin = {
-    from: "noreply@medhsop.com",
+  const mailOptionsAdmin = {
+    from: 'noreply@medhsop.com',
     to: process.env.ADMIN_MAIL,
     subject: `New order no. ${order.transaction_id}`,
     html: `<h1>Hey Admin, Somebody just made a purchase in your ecommerce store</h1>
@@ -89,37 +95,35 @@ exports.create = (req, res) => {
     <h2><b>Product details:</b></h2>
     <hr />
     ${order.products
-      .map((p) => {
-        return `<div style="background-color:#c0edcc; width:33.33%">
+    .map((p) => `<div style="background-color:#c0edcc; width:33.33%">
                 <h3><b>Product Name:</b> ${p.name}</h3>
                 <h3><b>Product Price:</b> ${p.price}</h3>
                 <h3><b>Product Quantity:</b> ${p.count}</h3>
                 <hr/>
-        </div>`;
-      })
-      .join("--------------------")}
+        </div>`)
+    .join('--------------------')}
     <h2>Total order cost: ${order.amount}<h2>
     <br/>
     <h3>Login to your dashboard</a> to see the order in detail.</h3>`,
   };
 
-  transporter.sendMail(mailOptionsAdmin, function (error, info) {
+  transporter.sendMail(mailOptionsAdmin, (error, info) => {
     if (error) {
       console.log(error);
     } else {
-      console.log("Email sent: " + info.response);
+      console.log(`Email sent: ${info.response}`);
     }
   });
 };
 
 exports.listOrders = (req, res) => {
   Order.find()
-    .populate("user", "_id name address")
-    .sort("-created")
+    .populate('user', '_id name address')
+    .sort('-created')
     .exec((err, orders) => {
       if (err) {
         return res.status(400).json({
-          error: errorHandler(error),
+          error: errorHandler(err),
         });
       }
       res.json(orders);
@@ -127,7 +131,7 @@ exports.listOrders = (req, res) => {
 };
 
 exports.getStatusValues = (req, res) => {
-  res.json(Order.schema.path("status").enumValues);
+  res.json(Order.schema.path('status').enumValues);
 };
 
 exports.updateOrderStatus = (req, res) => {
@@ -141,6 +145,6 @@ exports.updateOrderStatus = (req, res) => {
         });
       }
       res.json(order);
-    }
+    },
   );
 };

@@ -1,20 +1,21 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+
+const { Schema } = mongoose;
 const { ObjectId } = mongoose.Schema;
 
-const CartItemSchema = new mongoose.Schema(
+const CartItemSchema = new Schema(
   {
-    product: { type: ObjectId, ref: "Product" },
+    product: { type: ObjectId, ref: 'Product' },
     name: String,
     price: Number,
     count: Number,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const CartItem = mongoose.model("CartItem", CartItemSchema);
+const CartItem = mongoose.model('CartItem', CartItemSchema);
 
-const OrderSchema = new mongoose.Schema(
+const OrderSchema = new Schema(
   {
     products: [CartItemSchema],
     transaction_id: {},
@@ -22,21 +23,21 @@ const OrderSchema = new mongoose.Schema(
     address: String,
     status: {
       type: String,
-      default: "Not processed",
+      default: 'Not processed',
       enum: [
-        "Not processed",
-        "Processing",
-        "Shipped",
-        "Delivered",
-        "Cancelled",
+        'Not processed',
+        'Processing',
+        'Shipped',
+        'Delivered',
+        'Cancelled',
       ], // enum means string objects
     },
     updated: Date,
-    user: { type: ObjectId, ref: "User" },
+    user: { type: ObjectId, ref: 'User' },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const Order = mongoose.model("Order", OrderSchema);
+const Order = mongoose.model('Order', OrderSchema);
 
 module.exports = { Order, CartItem };

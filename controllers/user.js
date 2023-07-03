@@ -1,12 +1,15 @@
-const User = require("../models/user");
-const { Order } = require("../models/order");
-const { errorHandler } = require("../helpers/dbErrorHandler");
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable consistent-return */
+const User = require('../models/user');
+const { Order } = require('../models/order');
+const { errorHandler } = require('../helpers/dbErrorHandler');
 
 exports.userById = (req, res, next, id) => {
   User.findById(id).exec((err, user) => {
     if (err || !user) {
       return res.status(400).json({
-        error: "User not found",
+        error: 'User not found',
       });
     }
     req.profile = user;
@@ -28,18 +31,18 @@ exports.update = (req, res) => {
     (err, user) => {
       if (err) {
         return res.status(400).json({
-          error: "You are not authorized to perform this action",
+          error: 'You are not authorized to perform this action',
         });
       }
       user.hashed_password = undefined;
       user.salt = undefined;
       res.json(user);
-    }
+    },
   );
 };
 
 exports.addOrderToUserHistory = (req, res, next) => {
-  let history = [];
+  const history = [];
 
   req.body.order.products.forEach((item) => {
     history.push({
@@ -55,27 +58,28 @@ exports.addOrderToUserHistory = (req, res, next) => {
 
   User.findOneAndUpdate(
     { _id: req.profile._id },
-    { $push: { history: history } },
+    { $push: { history } },
     { new: true },
     (error, data) => {
       if (error) {
         return res.status(400).json({
-          error: "Could not update user purchase history",
+          error: 'Could not update user purchase history',
+          data,
         });
       }
       next();
-    }
+    },
   );
 };
 
 exports.listUsers = (req, res) => {
   User.find()
-    .populate("user", "_id name address")
-    .sort("-created")
+    .populate('user', '_id name address')
+    .sort('-created')
     .exec((err, users) => {
       if (err) {
         return res.status(400).json({
-          error: errorHandler(error),
+          error: errorHandler(err),
         });
       }
       res.json(users);
@@ -84,8 +88,8 @@ exports.listUsers = (req, res) => {
 
 exports.purchaseHistory = (req, res) => {
   Order.find({ user: req.profile._id })
-    .populate("user", "_id name")
-    .sort("-created")
+    .populate('user', '_id name')
+    .sort('-created')
     .exec((err, orders) => {
       if (err) {
         return res.status(400).json({

@@ -1,44 +1,42 @@
-const User = require('../models/user')
-const braintree = require('braintree')
+const braintree = require('braintree');
 require('dotenv')
-  .config()
+  .config();
 
 const gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
   merchantId: process.env.BRAINTREE_MERCHANT_ID,
   publicKey: process.env.BRAINTREE_PUBLIC_KEY,
-  privateKey: process.env.BRAINTREE_PRIVATE_KEY
-})
+  privateKey: process.env.BRAINTREE_PRIVATE_KEY,
+});
 
 exports.generateToken = (req, res) => {
-  gateway.clientToken.generate({}, function(err, response) {
+  gateway.clientToken.generate({}, (err, response) => {
     if (err) {
       res.status(500)
-        .send(err)
+        .send(err);
     } else {
-      res.send(response)
+      res.send(response);
     }
-  })
-}
+  });
+};
 
 exports.processPayment = (req, res) => {
-  const nonceFromTheClient = req.body.paymentMethodNonce
-  const amountFromTheClient = req.body.amount
-  const newTransaction = gateway.transaction.sale(
+  const nonceFromTheClient = req.body.paymentMethodNonce;
+  const amountFromTheClient = req.body.amount;
+  gateway.transaction.sale(
     {
       amount: amountFromTheClient,
       paymentMethodNonce: nonceFromTheClient,
       options: {
-        submitForSettlement: true
+        submitForSettlement: true,
+      },
+    },
+    (error, newTransaction) => {
+      if (error) {
+        res.status(500).json(error);
+      } else {
+        res.json(newTransaction);
       }
     },
-    (error, result) => {
-      if (error) {
-        res.status(500)
-          .json(error)
-      } else {
-        res.json(result)
-      }
-    }
-  )
-}
+  );
+};
