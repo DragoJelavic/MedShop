@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 /* eslint-disable no-underscore-dangle */
 const mongoose = require('mongoose');
 const crypto = require('crypto');
@@ -42,12 +43,14 @@ const userSchema = new mongoose.Schema(
 // virtual field
 userSchema
   .virtual('password')
-  .set((password) => {
+  .set(function (password) {
     this._password = password;
     this.salt = uuidv1();
     this.hashed_password = this.encryptPassword(password);
   })
-  .get(() => this._password);
+  .get(function () {
+    return this._password;
+  });
 
 userSchema.methods = {
   authenticate(plainText) {
