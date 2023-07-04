@@ -3,18 +3,24 @@
 /* eslint-disable consistent-return */
 const User = require('../models/user');
 const { Order } = require('../models/order');
-const { errorHandler } = require('../helpers/dbErrorHandler');
 
-exports.userById = (req, res, next, id) => {
-  User.findById(id).exec((err, user) => {
-    if (err || !user) {
+exports.userById = async (req, res, next, id) => {
+  try {
+    const user = await User.findById(id).exec();
+
+    if (!user) {
       return res.status(400).json({
         error: 'User not found',
       });
     }
+
     req.profile = user;
     next();
-  });
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Internal server error',
+    });
+  }
 };
 
 exports.read = (req, res) => {
@@ -23,25 +29,31 @@ exports.read = (req, res) => {
   return res.json(req.profile);
 };
 
-exports.update = (req, res) => {
-  User.findOneAndUpdate(
-    { _id: req.profile._id },
-    { $set: req.body },
-    { new: true },
-    (err, user) => {
-      if (err) {
-        return res.status(400).json({
-          error: 'You are not authorized to perform this action',
-        });
-      }
-      user.hashed_password = undefined;
-      user.salt = undefined;
-      res.json(user);
-    },
-  );
+exports.update = async (req, res) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { _id: req.profile._id },
+      { $set: req.body },
+      { new: true },
+    ).exec();
+
+    if (!user) {
+      return res.status(400).json({
+        error: 'You are not authorized to perform this action',
+      });
+    }
+
+    user.hashed_password = undefined;
+    user.salt = undefined;
+    res.json(user);
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Internal server error',
+    });
+  }
 };
 
-exports.addOrderToUserHistory = (req, res, next) => {
+exports.addOrderToUserHistory = async (req, res, next) => {
   const history = [];
 
   req.body.order.products.forEach((item) => {
@@ -56,46 +68,50 @@ exports.addOrderToUserHistory = (req, res, next) => {
     });
   });
 
-  User.findOneAndUpdate(
-    { _id: req.profile._id },
-    { $push: { history } },
-    { new: true },
-    (error, data) => {
-      if (error) {
-        return res.status(400).json({
-          error: 'Could not update user purchase history',
-          data,
-        });
-      }
-      next();
-    },
-  );
+  try {
+    const data = await User.findOneAndUpdate(
+      { _id: req.profile._id },
+      { $push: { history } },
+      { new: true },
+    ).exec();
+
+    // eslint-disable-next-line no-console
+    console.log(data);
+
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Internal server error',
+    });
+  }
 };
 
-exports.listUsers = (req, res) => {
-  User.find()
-    .populate('user', '_id name address')
-    .sort('-created')
-    .exec((err, users) => {
-      if (err) {
-        return res.status(400).json({
-          error: errorHandler(err),
-        });
-      }
-      res.json(users);
+exports.listUsers = async (req, res) => {
+  try {
+    const users = await User.find()
+      .populate('user', '_id name address')
+      .sort('-created')
+      .exec();
+
+    res.json(users);
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Internal server error',
     });
+  }
 };
 
-exports.purchaseHistory = (req, res) => {
-  Order.find({ user: req.profile._id })
-    .populate('user', '_id name')
-    .sort('-created')
-    .exec((err, orders) => {
-      if (err) {
-        return res.status(400).json({
-          error: errorHandler(err),
-        });
-      }
-      res.json(orders);
+exports.purchaseHistory = async (req, res) => {
+  try {
+    const orders = await Order.find({ user: req.profile._id })
+      .populate('user', '_id name')
+      .sort('-created')
+      .exec();
+
+    res.json(orders);
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Internal server error',
     });
+  }
 };
