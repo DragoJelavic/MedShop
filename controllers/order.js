@@ -9,11 +9,11 @@ const { errorHandler } = require('../helpers/dbErrorHandler');
 require('dotenv').config();
 
 const customerTemplate = fs.readFileSync(
-  '../templates/customer_order_email.ejs',
+  'templates/customer_order_email.ejs',
   'utf-8',
 );
 const adminTemplate = fs.readFileSync(
-  '../templates/admin_order_email.ejs',
+  'templates/admin_order_email.ejs',
   'utf-8',
 );
 
