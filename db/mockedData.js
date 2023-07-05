@@ -1,0 +1,82 @@
+const mockData = {
+  categories: [
+    { name: 'Meat' },
+    { name: 'Fruit' },
+    { name: 'Electronics' },
+    { name: 'Audio' },
+    { name: 'Veggies' },
+    { name: 'School' },
+  ],
+  products: [
+    {
+      name: 'Lamb Steak',
+      description: 'Lamb steak 500g',
+      price: 10.99,
+      category: 'Meat',
+      quantity: 10,
+    },
+    {
+      name: 'Apples',
+      description: 'Apples 1kg bag',
+      price: 19.99,
+      category: 'Fruit',
+      quantity: 5,
+    },
+    {
+      name: 'LED TV',
+      description: 'LED TV 52 inch',
+      price: 10.99,
+      category: 'Electronics',
+      quantity: 10,
+    },
+  ],
+  users: [
+    {
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      hashed_password: 'password123',
+      about: 'I am John Doe',
+      salt: 'salt123',
+      role: 0,
+      history: [],
+    },
+    {
+      name: 'Jane Smith',
+      email: 'janesmith@example.com',
+      hashed_password: 'password456',
+      about: 'I am Jane Smith',
+      salt: 'salt456',
+      role: 1,
+      history: [],
+    },
+    {
+      name: 'Mate Jarnes',
+      email: 'matejarnes@example.com',
+      hashed_password: 'password456',
+      about: 'I am Mate Jarnes',
+      salt: 'salt456',
+      role: 1,
+      history: [],
+    },
+    {
+      name: 'Arne Joinher',
+      email: 'arnejoinher@example.com',
+      hashed_password: 'password456',
+      about: 'I am Arne Joinher',
+      salt: 'salt456',
+      role: 1,
+      history: [],
+    },
+    {
+      name: 'Jack Smithsson',
+      email: 'jacksmithsson@example.com',
+      hashed_password: 'password456',
+      about: 'I am Jack Smithsson',
+      salt: 'salt456',
+      role: 1,
+      history: [],
+    },
+  ],
+};
+
+module.exports = mockData;
