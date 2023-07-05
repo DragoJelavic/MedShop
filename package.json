@@ -1,7 +1,7 @@
 {
-  "name": "ecommerce",
+  "name": "medshop-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "backend for a medical aids app",
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",
@@ -11,8 +11,12 @@
     "prepare": "husky install"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Drago Jelavic",
+  "license": "MIT",
+  "homepage": "https://github.com/DragoJelavic/MedShop",
+  "bugs": {
+    "url": "https://github.com/DragoJelavic/MedShop/issues"
+  },
   "dependencies": {
     "body-parser": "^1.20.2",
     "braintree": "^3.16.0",
@@ -21,6 +25,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-jwt": "^8.4.1",
+    "express-validator": "^7.0.1",
     "formidable": "^3.5.0",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.21",
